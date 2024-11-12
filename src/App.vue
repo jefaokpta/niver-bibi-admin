@@ -26,7 +26,14 @@ const filters = ref({
 const toast = useToast();
 
 onMounted(() => {
-    loadTable()
+  const password = prompt('Digite a senha para acessar o admin')
+  if (password === '') window.location.href = '/'
+  httpClient.post('admin/login', {password})
+    .then(() => {
+      loadTable()
+    }).catch(() => {
+      window.location.href = '/'
+    })
 });
 const loadTable = () => {
   httpClient.get('participants').then((response) => {
@@ -62,9 +69,9 @@ const hideSuccessAlert = () => {
   }, 10000)
 }
 const copyToClipboard = (name, id) => {
-  toast.add({severity:'info', summary:`Link de ${name} copiado 🎉`, detail: `Agora é só colar no Whatsapp amor! 😘`, life: 15000});
-  navigator.clipboard.writeText(id).then(() => {
-    console.log('Link copiado')
+  const link = `https://aniversario-bibi-336060841010.us-central1.run.app?id=${id}`
+  navigator.clipboard.writeText(link).then(() => {
+    toast.add({severity:'info', summary:`Link de ${name} copiado 🎉`, detail: `Agora é só colar no Whatsapp amor! 😘`, life: 15000});
   }, (err) => {
     console.error('Erro ao copiar link', err)
   });
@@ -147,7 +154,7 @@ const copyToClipboard = (name, id) => {
               <span v-else class="badge bg-danger">Não</span>
             </template>
           </Column>
-          <Column header="Link">
+          <Column header="Link Whatsapp">
             <template #body="row">
               <button @click="copyToClipboard(row.data.name, row.data.id)" class="btn btn-outline-primary">
                 <FontAwesomeIcon :icon="fas.faCopy" />
