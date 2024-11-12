@@ -3,6 +3,8 @@ import {onMounted, ref} from "vue";
 import {httpClient} from "@/http/axios.js";
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {fas} from "@fortawesome/free-solid-svg-icons";
 
 const loading = ref(false)
 const successAlert = ref(false)
@@ -98,7 +100,7 @@ const hideSuccessAlert = () => {
                     </div>
                     <div class="form-floating mb-3">
                       <button type="button" class="btn btn-outline-primary">
-                        <em class="fa-solid fa-trash-can"></em>
+                        <FontAwesomeIcon :icon="fas.faTrash" />
                       </button>
                     </div>
                   </div>
