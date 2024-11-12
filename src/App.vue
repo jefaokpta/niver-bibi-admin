@@ -1,0 +1,126 @@
+<script setup>
+import {onMounted, ref} from "vue";
+import {httpClient} from "@/http/axios.js";
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+
+const loading = ref(false)
+const successAlert = ref(false)
+const errorAlert = ref(false)
+const participants = ref([]);
+const participant = ref({
+  name: '',
+  phone: '',
+  guests: []
+})
+
+onMounted(() => {
+    loadTable()
+});
+const loadTable = () => {
+  httpClient.get('participants').then((response) => {
+    participants.value = response.data;
+  });
+}
+const save = async () => {
+  loading.value = true
+  const response = await httpClient.post('participants', participant.value)
+  loading.value = false
+  if (response.status === 201) {
+    successAlert.value = true
+    participant.value = {
+      name: '',
+      phone: '',
+      guests: []
+    }
+    hideSuccessAlert()
+    loadTable()
+  } else {
+    errorAlert.value = true
+  }
+}
+const addGuest = () => {
+  participant.value.guests.push({
+    name: '',
+    isKid: false
+  })
+}
+const hideSuccessAlert = () => {
+  setTimeout(() => {
+    successAlert.value = false
+  }, 10000)
+}
+
+</script>
+
+<template>
+  <header>
+    <h1 class="site-heading text-center text-faded d-lg-block">
+      <span class="site-heading-upper text-primary mb-3">Chegou a hora de comemoramos juntos!</span>
+      <span class="site-heading-lower">Bianca 10 anos!</span>
+    </h1>
+  </header>
+<!--  <DataTable :value="participants" tableStyle="min-width: 50rem">-->
+<!--    <Column field="name" header="Nome"></Column>-->
+<!--    <Column field="isConfirmed" header="Confirmado"></Column>-->
+<!--  </DataTable>-->
+
+  <section class="page-section about-heading">
+    <div class="container">
+      <div class="about-heading-content">
+        <div class="row">
+          <div class="col-xl-9 col-lg-10 mx-auto">
+            <div class="bg-faded rounded p-5">
+              <h2 class="section-heading mb-4">
+                <span class="section-heading-lower">Cadastre Convidados</span>
+              </h2>
+              <form @submit.prevent="save" >
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="name" v-model="participant.name" placeholder="Seu Nome">
+                  <label for="name">Nome</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <button type="button" class="btn btn-outline-primary" @click="addGuest">
+                    <em class="fa-solid fa-plus"></em> Add Acompanhante
+                  </button>
+                </div>
+                <div v-for="guest in participant.guests" >
+                  <div class="input-group mb-3 guests">
+                    <div class="form-floating mb-3 col-8">
+                      <input type="text" class="form-control" v-model="guest.name" id="guestName" placeholder="Acompanhante">
+                      <label for="guestName">Nome do acompanhante</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input checkbox-xl" v-model="guest.isKid" type="checkbox">
+                      <label class="form-check-label" style="padding-left: 8px">
+                        Menor de 10 anos?
+                      </label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <button type="button" class="btn btn-outline-primary">
+                        <em class="fa-solid fa-trash-can"></em>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn-success col-12" type="submit">
+                  Salvar
+                  <span class="spinner-border spinner-border-sm" v-if="loading" role="status" aria-hidden="true"></span>
+                </button>
+                <small class="form-text text-success" v-if="successAlert" >Dados salvos com sucesso 🥳 </small>
+                <small class="form-text text-danger" v-if="errorAlert" >Deu falha ao salvar os dados </small>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-faded rounded p-1 mt-5">
+        <!--     tabela-->
+      </div>
+    </div>
+  </section>
+  <footer class="footer text-faded text-center py-5">
+    <div class="container"><p class="m-0 small">Feito com ❤️ pelo papai <a href="https://www.linkedin.com/in/🤓-jefferson-alves-reis-00007361/">jefaokpta</a> 2024 </p></div>
+  </footer>
+</template>
+
