@@ -63,6 +63,21 @@ const addGuest = () => {
     isKid: false
   })
 }
+const totalGuests = () => {
+  return participants.value.reduce((acc, p) => acc + p.guests.length, 0)
+}
+const totalKids = () => {
+  return participants.value.reduce((acc, p) => acc + p.guests.filter(g => g.isKid).length, 0)
+}
+const totalParticipants = () => {
+  return participants.value.length
+}
+const totalConfirmed = () => {
+  return participants.value.filter(p => p.isConfirmed).length
+}
+const totalNotConfirmed = () => {
+  return participants.value.filter(p => !p.isConfirmed).length
+}
 const hideSuccessAlert = () => {
   setTimeout(() => {
     successAlert.value = false
@@ -137,6 +152,11 @@ const copyToClipboard = (name, id) => {
         </div>
       </div>
       <div class="bg-faded rounded p-1 mt-5">
+        <span class="badge bg-black">Convidados {{totalParticipants()}}</span>
+        <span class="badge bg-success">Confirmados {{totalConfirmed()}}</span>
+        <span class="badge bg-danger">Não Confirmados {{totalNotConfirmed()}}</span>
+        <span class="badge bg-primary">Acompanhantes {{totalGuests()}}</span>
+        <span class="badge bg-warning">Crianças {{totalKids()}}</span>
         <DataTable v-model:filters="filters" :value="participants" paginator :rows="10" tableStyle="min-width: 50rem"
                    :globalFilterFields="['name']" data-key="id">
           <template #header>
