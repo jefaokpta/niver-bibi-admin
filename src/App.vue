@@ -5,6 +5,11 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {fas} from "@fortawesome/free-solid-svg-icons";
+import {FilterMatchMode} from '@primevue/core/api';
+import InputText from 'primevue/inputtext';
+import IconField from 'primevue/iconfield';
+import { useToast } from 'primevue/usetoast';
+import Toast from 'primevue/toast';
 
 const loading = ref(false)
 const successAlert = ref(false)
@@ -15,6 +20,10 @@ const participant = ref({
   phone: '',
   guests: []
 })
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+const toast = useToast();
 
 onMounted(() => {
     loadTable()
@@ -52,6 +61,14 @@ const hideSuccessAlert = () => {
     successAlert.value = false
   }, 10000)
 }
+const copyToClipboard = (name, id) => {
+  toast.add({severity:'info', summary:`Link de ${name} copiado 🎉`, detail: `Agora é só colar no Whatsapp amor! 😘`, life: 15000});
+  navigator.clipboard.writeText(id).then(() => {
+    console.log('Link copiado')
+  }, (err) => {
+    console.error('Erro ao copiar link', err)
+  });
+}
 
 </script>
 
@@ -62,10 +79,6 @@ const hideSuccessAlert = () => {
       <span class="site-heading-lower">Bianca 10 anos!</span>
     </h1>
   </header>
-<!--  <DataTable :value="participants" tableStyle="min-width: 50rem">-->
-<!--    <Column field="name" header="Nome"></Column>-->
-<!--    <Column field="isConfirmed" header="Confirmado"></Column>-->
-<!--  </DataTable>-->
 
   <section class="page-section about-heading">
     <div class="container">
@@ -117,12 +130,37 @@ const hideSuccessAlert = () => {
         </div>
       </div>
       <div class="bg-faded rounded p-1 mt-5">
-        <!--     tabela-->
+        <DataTable v-model:filters="filters" :value="participants" paginator :rows="10" tableStyle="min-width: 50rem"
+                   :globalFilterFields="['name']" data-key="id">
+          <template #header>
+            <div class="flex justify-end">
+              <IconField>
+                <FontAwesomeIcon :icon="fas.faSearch" />
+                <InputText v-model="filters['global'].value" placeholder="Buscar" />
+              </IconField>
+            </div>
+          </template>
+          <Column field="name" sortable header="Nome"></Column>
+          <Column field="isConfirmed" sortable header="Confirmado">
+            <template #body="row">
+              <span v-if="row.data.isConfirmed" class="badge bg-success">Sim</span>
+              <span v-else class="badge bg-danger">Não</span>
+            </template>
+          </Column>
+          <Column header="Link">
+            <template #body="row">
+              <button @click="copyToClipboard(row.data.name, row.data.id)" class="btn btn-outline-primary">
+                <FontAwesomeIcon :icon="fas.faCopy" />
+              </button>
+            </template>
+          </Column>
+        </DataTable>
       </div>
     </div>
   </section>
   <footer class="footer text-faded text-center py-5">
     <div class="container"><p class="m-0 small">Feito com ❤️ pelo papai <a href="https://www.linkedin.com/in/🤓-jefferson-alves-reis-00007361/">jefaokpta</a> 2024 </p></div>
   </footer>
+  <Toast />
 </template>
 
